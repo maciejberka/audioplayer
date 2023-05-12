@@ -15,17 +15,18 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _isLoading = false;
+  //* currently, the audioplayers package does not support the following feature:
+  // await player.getDuration();
+  //* that's why the duration of all paths is hardcoded
+  final List<Episode> allEpisodes = [
+    Episode(title: 'Path 1.', file: 'https://samplelib.com/lib/preview/mp3/sample-3s.mp3', duration: const Duration(seconds: 3)),
+    Episode(title: 'Path 2.', file: 'https://samplelib.com/lib/preview/mp3/sample-9s.mp3', duration: const Duration(seconds: 9)),
+    Episode(title: 'Path 3.', file: 'https://samplelib.com/lib/preview/mp3/sample-12s.mp3', duration: const Duration(seconds: 12)),
+    Episode(title: 'Path 4.', file: 'https://samplelib.com/lib/preview/mp3/sample-15s.mp3', duration: const Duration(seconds: 19)),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    //* currently, the audioplayers package does not support the following feature:
-    // await player.getDuration();
-    //* that's why the duration of all paths is hardcoded
-    final List<Episode> allEpisodes = [
-      Episode(title: 'Path 1.', file: 'https://samplelib.com/lib/preview/mp3/sample-3s.mp3', duration: const Duration(seconds: 3)),
-      Episode(title: 'Path 2.', file: 'https://samplelib.com/lib/preview/mp3/sample-9s.mp3', duration: const Duration(seconds: 9)),
-      Episode(title: 'Path 3.', file: 'https://samplelib.com/lib/preview/mp3/sample-12s.mp3', duration: const Duration(seconds: 12)),
-      Episode(title: 'Path 4.', file: 'https://samplelib.com/lib/preview/mp3/sample-15s.mp3', duration: const Duration(seconds: 19)),
-    ];
     final provider = ref.read(playerProvider.notifier);
     final state = ref.watch(playerProvider);
 
