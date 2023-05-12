@@ -1,41 +1,36 @@
 import 'package:audio_player/components/ap_scaffold.dart';
 import 'package:audio_player/helpers/duration_to_string.dart';
 import 'package:audio_player/models/episode.dart';
-import 'package:audio_player/models/player_model.dart';
+import 'package:audio_player/providers/player_provider.dart';
 import 'package:audio_player/screens/player_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:provider/provider.dart';
-
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  //* currently, the audioplayers package does not support the following feature:
-  // await player.getDuration();
-  //* that's why the duration of all paths is hardcoded
-  List<Episode> allEpisodes = [
-    Episode(title: 'Path 1.', file: 'https://samplelib.com/lib/preview/mp3/sample-3s.mp3', duration: const Duration(seconds: 3)),
-    Episode(title: 'Path 2.', file: 'https://samplelib.com/lib/preview/mp3/sample-9s.mp3', duration: const Duration(seconds: 9)),
-    Episode(title: 'Path 3.', file: 'https://samplelib.com/lib/preview/mp3/sample-12s.mp3', duration: const Duration(seconds: 12)),
-    Episode(title: 'Path 4.', file: 'https://samplelib.com/lib/preview/mp3/sample-15s.mp3', duration: const Duration(seconds: 19)),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
-    final playerModel = Provider.of<PlayerModel>(context);
+    //* currently, the audioplayers package does not support the following feature:
+    // await player.getDuration();
+    //* that's why the duration of all paths is hardcoded
+    final List<Episode> allEpisodes = [
+      Episode(title: 'Path 1.', file: 'https://samplelib.com/lib/preview/mp3/sample-3s.mp3', duration: const Duration(seconds: 3)),
+      Episode(title: 'Path 2.', file: 'https://samplelib.com/lib/preview/mp3/sample-9s.mp3', duration: const Duration(seconds: 9)),
+      Episode(title: 'Path 3.', file: 'https://samplelib.com/lib/preview/mp3/sample-12s.mp3', duration: const Duration(seconds: 12)),
+      Episode(title: 'Path 4.', file: 'https://samplelib.com/lib/preview/mp3/sample-15s.mp3', duration: const Duration(seconds: 19)),
+    ];
+    final provider = ref.read(playerProvider.notifier);
+    final state = ref.watch(playerProvider);
+
     return APScaffold(
       context: context,
-      playerModel: playerModel,
       title: 'Home screen',
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
@@ -45,39 +40,61 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => PlayerScreen(
-                        episodes: allEpisodes,
-                        playerModel: playerModel,
+              SizedBox(
+                width: double.infinity,
+                child: Opacity(
+                  opacity: _isLoading ? 0.5 : 1,
+                  child: ElevatedButton(
+                    style: const ButtonStyle(alignment: Alignment.centerLeft),
+                    onPressed: () async {
+                      if (_isLoading) return;
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      if (!state.isPlaying) await provider.initialize(allEpisodes);
+                      setState(() {
+                        _isLoading = false;
+                      });
+                      if (context.mounted) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => PlayerScreen(
+                              episodes: allEpisodes,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Some mixed sound paths',
+                          ),
+                          if (_isLoading)
+                            const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.0,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                  );
-                },
-                style: TextButton.styleFrom(
-                  side: const BorderSide(width: 1.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Some mixed sound paths'),
-                      Icon(playerModel.isPlaying ? Icons.pause : Icons.play_arrow),
-                    ],
                   ),
                 ),
               ),
-              if (playerModel.allPlayers.isNotEmpty)
+              if (state.allAudioPlayers.isNotEmpty)
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => PlayerScreen(
                           episodes: allEpisodes,
-                          playerModel: playerModel,
                         ),
                       ),
                     );
@@ -98,14 +115,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text('Some mixed sound paths'),
-                              Text('${durationToString(playerModel.currentPosition)} / ${durationToString(playerModel.totalDuration)}'),
+                              Text('${durationToString(state.currentPostion)} / ${durationToString(state.totalDuration)}'),
                             ],
                           ),
                           IconButton(
                             onPressed: () {
-                              playerModel.isPlaying ? playerModel.pause(playerModel) : playerModel.resume(playerModel);
+                              state.isPlaying ? provider.pause() : provider.play();
                             },
-                            icon: Icon(playerModel.isPlaying ? Icons.pause : Icons.play_arrow),
+                            icon: Icon(state.isPlaying ? Icons.pause : Icons.play_arrow),
                           )
                         ],
                       ),

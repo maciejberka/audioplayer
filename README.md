@@ -5,7 +5,7 @@ Here's an example of a simple Flutter application that acts as a standard audio 
 
 ## Packages
 
-- [Provider](https://pub.dev/packages/provider) (for state management)
+- [Riverpod](https://riverpod.dev/) (for state management)
 - [Audioplayers](https://pub.dev/packages/audioplayers) (for playing audio)
 
 ## Getting started

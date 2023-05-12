@@ -1,16 +1,13 @@
-import 'package:audio_player/models/player_model.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(ChangeNotifierProvider(
-    create: (context) => PlayerModel(),
-    child: const APApp(),
-  ));
+  runApp(
+    const ProviderScope(child: APApp()),
+  );
 }
 
 class APApp extends StatelessWidget {

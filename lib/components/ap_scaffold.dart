@@ -1,4 +1,3 @@
-import 'package:audio_player/models/player_model.dart';
 import 'package:flutter/material.dart';
 
 class APScaffold extends StatelessWidget {
@@ -8,13 +7,11 @@ class APScaffold extends StatelessWidget {
   final BuildContext context;
   final String? routeName;
 
-  final PlayerModel playerModel;
   const APScaffold({
     super.key,
     required this.body,
     required this.context,
     this.routeName,
-    required this.playerModel,
     required this.title,
   });
 
