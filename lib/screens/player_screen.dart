@@ -10,7 +10,7 @@ class PlayerScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = ref.watch(playerProvider.notifier);
+    final provider = ref.read(playerProvider.notifier);
     final state = ref.watch(playerProvider);
     return APScaffold(
       context: context,
