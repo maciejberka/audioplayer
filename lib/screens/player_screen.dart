@@ -4,17 +4,12 @@ import 'package:audio_player/providers/player_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PlayerScreen extends ConsumerStatefulWidget {
+class PlayerScreen extends ConsumerWidget {
   final List<Episode> episodes;
   const PlayerScreen({super.key, required this.episodes});
 
   @override
-  ConsumerState<PlayerScreen> createState() => _PlayerScreenState();
-}
-
-class _PlayerScreenState extends ConsumerState<PlayerScreen> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final provider = ref.watch(playerProvider.notifier);
     final state = ref.watch(playerProvider);
     return APScaffold(
