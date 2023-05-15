@@ -16,7 +16,7 @@ class APApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: 'Audio player Demo',
+      title: 'Audio player',
       home: HomeScreen(),
     );
   }
